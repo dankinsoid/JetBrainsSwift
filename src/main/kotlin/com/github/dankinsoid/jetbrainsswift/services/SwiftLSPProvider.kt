@@ -16,10 +16,12 @@ import java.util.*
 
 class SwiftLspServerSupportProvider : LspServerSupportProvider {
     override fun fileOpened(project: Project, file: VirtualFile, serverStarter: LspServerStarter) {
+        println("fileOpened")
         if (isSPMProject(file, project)) {
             val descriptor = SwiftLspServerDescriptor(project)
             if (descriptor.isSupportedFile(file)) {
-                serverStarter.ensureServerStarted(SwiftLspServerDescriptor(project))
+                println("ensureServerStarted")
+                serverStarter.ensureServerStarted(descriptor)
             }
         }
     }
@@ -38,12 +40,14 @@ private class SwiftLspServerDescriptor(project: Project) : ProjectWideLspServerD
         return file.extension == "swift" || file.extension == "h" || file.extension == "m" || file.extension == "mm"
     }
     override fun createCommandLine(): GeneralCommandLine {
+        println("createCommandLine")
         val sourceKitLSPPath = "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/sourcekit-lsp"
 
         if (!File(sourceKitLSPPath).exists()) {
             throw Exception("sourcekit-lsp not found")
         }
 
+        println("sourceKitLSPPath: $sourceKitLSPPath")
         return GeneralCommandLine().apply {
             exePath = sourceKitLSPPath // Set the path to the sourcekit-lsp executable
             withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
